@@ -142,3 +142,7 @@ Go to the build folder where the executables corresponding to the examples are l
   [2]: https://github.com/hengli/camodocal/blob/master/src/examples/intrinsic_calib.cc "src/examples/intrinsic_calib.cc"
   [3]: https://github.com/hengli/camodocal/blob/master/src/examples/stereo_calib.cc "src/examples/stereo_calib.cc"
   [4]: https://github.com/hengli/camodocal/blob/master/src/examples/extrinsic_calib.cc "src/examples/extrinsic_calib.cc"
+
+
+5. monocular visual odomerty
+         bin/vo <image directory> <image extension .ext> 

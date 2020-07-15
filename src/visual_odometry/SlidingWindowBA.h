@@ -23,7 +23,7 @@ public:
                     int N = 20, int n = 6, int mode = VO,
                     Eigen::Matrix4d globalCameraPose = Eigen::Matrix4d());
 
-    Eigen::Matrix4d globalCameraPose(void);
+    Eigen::Matrix4d globalCameraPose(void); //camera外参
 
     bool addFrame(FramePtr& frame);
 
@@ -73,13 +73,13 @@ private:
 
     void optimize(void);
 
-    int m_N;
+    int m_N; //windows设定个数
     int m_n;
     int m_mode;
 
-    Pose m_T_cam_odo;
+    Pose m_T_cam_odo; //camera外参
 
-    std::list<FramePtr> m_window;
+    std::list<FramePtr> m_window; //不大于m_N
 
     const CameraConstPtr k_camera;
 
@@ -88,7 +88,7 @@ private:
     const double k_nominalFocalLength;
     const double k_reprojErrorThresh;
 
-    size_t m_frameCount;
+    size_t m_frameCount; //和m_window.size好像没区别
     bool m_verbose;
 
     const int k_min2D2DFeatureCorrespondences;

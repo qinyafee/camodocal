@@ -68,7 +68,7 @@ SlidingWindowBA::addFrame(FramePtr& frame)
         std::cout << "# INFO: Added frame " << m_frameCount - 1 << "." << std::endl;
     }
 
-    if (m_frameCount == 1)
+    if (m_frameCount == 1) //新轨迹的开始
     {
         if (m_mode == VO)
         {
@@ -81,13 +81,16 @@ SlidingWindowBA::addFrame(FramePtr& frame)
 
     FramePtr framePrev = *(++m_window.rbegin());
 
-    // find feature correspondences between previous and current frames
+    // find feature correspondences between previous and current frames， 去掉low disparity
+    // featureCorrespondences[0], curr --> 存入prev的feature地址
+    // featureCorrespondences[1], prev --> 存入curr的feature地址   
     std::vector<std::vector<Point2DFeaturePtr> > featureCorrespondences;
     findFeatureCorrespondences(frameCurr->features2D(), 2, featureCorrespondences);
-
+    
+    // curr和prev的关系reset
     for (size_t i = 0; i < framePrev->features2D().size(); ++i)
     {
-        framePrev->features2D().at(i)->bestNextMatchId() = -1;
+        framePrev->features2D().at(i)->bestNextMatchId() = -1; //？？
     }
     for (size_t i = 0; i < frameCurr->features2D().size(); ++i)
     {
@@ -103,12 +106,12 @@ SlidingWindowBA::addFrame(FramePtr& frame)
     {
         // compute pose in frame 1 relative to frame 0
 
-        std::vector<cv::Point2f> imagePoints[2];
-        for (size_t i = 0; i < featureCorrespondences.size(); ++i)
+        std::vector<cv::Point2f> imagePoints[2]; // 2个vector, [0]:prev地址, [1]:curr地址
+        for (size_t i = 0; i < featureCorrespondences.size(); ++i) 
         {
             std::vector<Point2DFeaturePtr>& fc = featureCorrespondences.at(i);
 
-            for (size_t j = 0; j < fc.size(); ++j)
+            for (size_t j = 0; j < fc.size(); ++j) //size =2， 从 n*2 -> 2*n
             {
                 imagePoints[j].push_back(fc.at(j)->keypoint().pt);
             }
@@ -125,6 +128,8 @@ SlidingWindowBA::addFrame(FramePtr& frame)
         }
 
         std::vector<cv::Point2f> rectImagePoints[2];
+        // imagePoints[0].resize(featureCorrespondences.size()); //函数里已经resize()
+        // imagePoints[1].resize(featureCorrespondences.size());             
         for (size_t i = 0; i < 2; ++i)
         {
             rectifyImagePoints(k_camera, imagePoints[i], rectImagePoints[i]);
@@ -160,7 +165,7 @@ SlidingWindowBA::addFrame(FramePtr& frame)
             inliers = cv::Scalar(1);
         }
 
-        std::vector<std::vector<Point2DFeaturePtr> > inlierFeatureCorrespondences;
+        std::vector<std::vector<Point2DFeaturePtr> > inlierFeatureCorrespondences; // n * 2
         for (int i = 0; i < inliers.cols; ++i)
         {
             if (!inliers.at<unsigned char>(0,i))
@@ -179,7 +184,7 @@ SlidingWindowBA::addFrame(FramePtr& frame)
         {
             std::vector<Point2DFeaturePtr>& fc = inlierFeatureCorrespondences.at(i);
 
-            for (size_t j = 0; j < fc.size(); ++j)
+            for (size_t j = 0; j < fc.size(); ++j) //fc.size()=2
             {
                 imagePoints[j].push_back(fc.at(j)->keypoint().pt);
             }
@@ -227,7 +232,7 @@ SlidingWindowBA::addFrame(FramePtr& frame)
             return false;
         }
 
-        for (size_t i = 0; i < points3D.size(); ++i)
+        for (size_t i = 0; i < points3D.size(); ++i) //建立correspondence
         {
             size_t idx = indices.at(i);
 
@@ -513,8 +518,8 @@ SlidingWindowBA::addFrame(FramePtr& frame)
     // prune triangulated scene points with high reprojection error and behind a camera
     size_t nPrunedScenePoints = 0;
     std::vector<Eigen::Matrix4d, Eigen::aligned_allocator<Eigen::Matrix4d> > H_cam;
-    H_cam.push_back(framePrev->cameraPose()->toMatrix());
-    H_cam.push_back(frameCurr->cameraPose()->toMatrix());
+    H_cam.push_back(framePrev->cameraPose()->toMatrix()); // f0
+    H_cam.push_back(frameCurr->cameraPose()->toMatrix()); // f1
     for (size_t i = 0; i < featureCorrespondences.size(); ++i)
     {
         std::vector<Point2DFeaturePtr>& fc = featureCorrespondences.at(i);
@@ -560,11 +565,11 @@ SlidingWindowBA::addFrame(FramePtr& frame)
             if (f0->prevMatches().empty() || f0->bestPrevMatchId() == -1)
             {
                 f0->feature3D() = Point3DFeaturePtr();
-                scenePoint->removeFeatureObservation(f0);
+                scenePoint->removeFeatureObservation(f0); // framePrev
             }
 
             f1->feature3D() = Point3DFeaturePtr();
-            scenePoint->removeFeatureObservation(f1);
+            scenePoint->removeFeatureObservation(f1); //frameCurr
 
             f0->bestNextMatchId() = -1;
             f1->bestPrevMatchId() = -1;
@@ -637,7 +642,7 @@ std::vector<Eigen::Matrix4d, Eigen::aligned_allocator<Eigen::Matrix4d> >
 SlidingWindowBA::poses(void) const
 {
     std::vector<Eigen::Matrix4d, Eigen::aligned_allocator<Eigen::Matrix4d> > poses;
-
+    poses.reserve(m_window.size());
     for (std::list<FramePtr>::const_iterator it = m_window.begin(); it != m_window.end(); ++it)
     {
         const FrameConstPtr& frame = *it;
@@ -727,7 +732,7 @@ SlidingWindowBA::frameReprojectionError(int windowIdx, double& minError, double&
             error = reprojectionError(feature3D->point(),
                                       m_T_cam_odo.rotation(),
                                       m_T_cam_odo.translation(),
-                                      frame->systemPose()->position(),
+                                      frame->systemPose()->position(), //后轴中心位姿
                                       frame->systemPose()->attitude(),
                                       Eigen::Vector2d(feature2D->keypoint().pt.x, feature2D->keypoint().pt.y));
         }
@@ -924,7 +929,7 @@ SlidingWindowBA::solveP3PRansac(const std::vector<std::vector<Point2DFeaturePtr>
     double v = 0.6; // probability of observing an outlier
 
     double u = 1.0 - v;
-    int N = static_cast<int>(log(1.0 - p) / log(1.0 - u * u * u) + 0.5);
+    int N = static_cast<int>(log(1.0 - p) / log(1.0 - u * u * u) + 0.5); //参数为3个
 
     std::vector<size_t> indices;
     for (size_t i = 0; i < correspondences.size(); ++i)
@@ -1089,7 +1094,9 @@ SlidingWindowBA::optimize(void)
     ceres::Problem problem;
 
     ceres::Solver::Options options;
-    options.linear_solver_type = ceres::DENSE_SCHUR;
+    // options.linear_solver_type = ceres::DENSE_SCHUR;
+    options.linear_solver_type = ceres::SPARSE_SCHUR;
+
     options.max_num_iterations = 20;
 
     for (std::list<FramePtr>::iterator it = m_window.begin(); it != m_window.end(); ++it)
@@ -1131,9 +1138,9 @@ SlidingWindowBA::optimize(void)
                                                                           CAMERA_ODOMETRY_TRANSFORM | ODOMETRY_3D_POSE | POINT_3D);
 
                 problem.AddResidualBlock(costFunction, lossFunction,
-                                         m_T_cam_odo.rotationData(),
+                                         m_T_cam_odo.rotationData(), //camera外参估计
                                          m_T_cam_odo.translationData(),
-                                         frame->systemPose()->positionData(),
+                                         frame->systemPose()->positionData(), //camera外参估计
                                          frame->systemPose()->attitudeData(),
                                          feature2D->feature3D()->pointData());
             }
@@ -1166,7 +1173,7 @@ SlidingWindowBA::optimize(void)
         problem.SetParameterization(m_T_cam_odo.rotationData(), quaternionParameterization);
     }
 
-    if ((int)m_window.size() > m_N - m_n)
+    if ((int)m_window.size() > m_N - m_n) //20-6=14, 0-13的pose在optimization保持不变
     {
         std::list<FramePtr>::iterator it = m_window.begin();
         for (int i = 0; i < m_N - m_n; ++i)
@@ -1202,6 +1209,7 @@ SlidingWindowBA::optimize(void)
 
     ceres::Solver::Summary summary;
     ceres::Solve(options, &problem, &summary);
+    std::cout << summary.FullReport() << "\n";
 }
 
 }

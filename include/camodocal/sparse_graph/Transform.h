@@ -18,7 +18,7 @@ public:
 
     Eigen::Quaterniond& rotation(void);
     const Eigen::Quaterniond& rotation(void) const;
-    double* rotationData(void);
+    double* rotationData(void); //返回四元数的系数
     const double* const rotationData(void) const;
 
     Eigen::Vector3d& translation(void);

@@ -45,7 +45,7 @@ private:
     Eigen::Vector3d m_pos;
     Eigen::Vector3d m_att; // 0 - yaw, 1 - pitch, 2 - roll
     uint64_t m_timeStamp;
-};
+}; //应该是轮速计
 
 typedef boost::shared_ptr<Odometry> OdometryPtr;
 typedef boost::shared_ptr<const Odometry> OdometryConstPtr;

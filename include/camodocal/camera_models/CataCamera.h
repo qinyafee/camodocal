@@ -60,8 +60,8 @@ public:
         double m_k2;
         double m_p1;
         double m_p2;
-        double m_gamma1;
-        double m_gamma2;
+        double m_gamma1; //=m_fx of pinhole
+        double m_gamma2; //=m_fy of pinhole
         double m_u0;
         double m_v0;
     };
@@ -186,21 +186,27 @@ CataCamera::spaceToPlane(const T* const params,
     T v0 = params[8];
 
     // Transform to model plane
+    //（1）world points in the mirror frame are projected onto the unit sphere
     T len = sqrt(P_c[0] * P_c[0] + P_c[1] * P_c[1] + P_c[2] * P_c[2]);
     P_c[0] /= len;
     P_c[1] /= len;
     P_c[2] /= len;
 
+    //（2）the points are then changed to a new reference frame
+    //（3）project the point onto the normalized undistorted image plane,
     T u = P_c[0] / (P_c[2] + xi);
     T v = P_c[1] / (P_c[2] + xi);
 
-    T rho_sqr = u * u + v * v;
-    T L = T(1.0) + k1 * rho_sqr + k2 * rho_sqr * rho_sqr;
-    T du = T(2.0) * p1 * u * v + p2 * (rho_sqr + T(2.0) * u * u);
-    T dv = p1 * (rho_sqr + T(2.0) * v * v) + T(2.0) * p2 * u * v;
+    //radial and tangential distortions
+    T rho_sqr = u * u + v * v; //r^2
+    T L = T(1.0) + k1 * rho_sqr + k2 * rho_sqr * rho_sqr; //radial, 为啥没有k3？
+    T du = T(2.0) * p1 * u * v + p2 * (rho_sqr + T(2.0) * u * u); //tangential
+    T dv = p1 * (rho_sqr + T(2.0) * v * v) + T(2.0) * p2 * u * v; //tangential
 
-    u = L * u + du;
+    //（4） project onto the normalized distorted image plane
+    u = L   * u + du;
     v = L * v + dv;
+    //（5） project onto the pixel plane with a generalised camera projection matrix
     p(0) = gamma1 * (u + alpha * v) + u0;
     p(1) = gamma2 * v + v0;
 }

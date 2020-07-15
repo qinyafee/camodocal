@@ -27,21 +27,21 @@ public:
     bool readFromDirectory(const std::string& directory);
     bool writeToDirectory(const std::string& directory) const;
 
-    bool readFromXmlFile(const std::string& filename);
+    bool readFromXmlFile(const std::string& filename); //没有完整实现
     bool writeToXmlFile(const std::string& filename) const;
 
     int getCameraIdx(const CameraConstPtr& camera) const;
-    CameraPtr getCamera(int idx) const;
+    CameraPtr getCamera(int idx) const; //0, 1, 2, 3
 
-    bool setCamera(int idx, CameraPtr& camera);
+    bool setCamera(int idx, CameraPtr& camera); //同时设置了m_cameras，m_cameraMap
 
     bool setReferenceCamera(int idx);
 
-    // global camera pose is the transform from camera frame to system's reference frame
-    Eigen::Matrix4d getGlobalCameraPose(int idx) const;
+    // global camera pose is the transform from camera frame to system's reference frame， 后轴
+    Eigen::Matrix4d getGlobalCameraPose(int idx) const; //外参
     Eigen::Matrix4d getGlobalCameraPose(const CameraConstPtr& camera) const;
 
-    // local camera pose is the transform from camera frame to reference camera frame
+    // local camera pose is the transform from camera frame to reference camera frame， cam0？
     Eigen::Matrix4d getLocalCameraPose(int idx) const;
     Eigen::Matrix4d getLocalCameraPose(const CameraConstPtr& camera) const;
 
@@ -52,7 +52,7 @@ public:
 
     // pair index corresponds to the index of the right camera in the camera pair
     int leftCameraIdx(int cameraPairIdx) const;
-    int rightCameraIdx(int cameraPairIdx) const;
+    int rightCameraIdx(int cameraPairIdx) const; ////为啥得到自己的id
 
     // relative transform is the transform from the left camera frame to the right camera frame
     Eigen::Matrix4d relativeTransformBetweenCameraPair(int pairIdx) const;
@@ -65,6 +65,8 @@ private:
     int m_referenceCameraIdx;
 
     std::vector<CameraPtr> m_cameras;
+    
+    // camera的外参
     std::vector<Eigen::Matrix4d, Eigen::aligned_allocator<Eigen::Matrix4d> > m_globalPoses;
     boost::unordered_map<CameraPtr,int> m_cameraMap;
 };

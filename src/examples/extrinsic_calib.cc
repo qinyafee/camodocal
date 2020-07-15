@@ -323,7 +323,7 @@ main(int argc, char** argv)
 
     // optimize intrinsics only if features are well distributed across
     // the entire image area.
-    CamRigOdoCalibration::Options options;
+    CamRigOdoCalibration::Options options; //先构造option
 //    options.mode = CamRigOdoCalibration::ONLINE;
     options.poseSource = bUseGPS ? PoseSource::GPS_INS : PoseSource::ODOMETRY;
     options.nMotions = nMotions;
@@ -470,7 +470,7 @@ main(int argc, char** argv)
     //            ensure that before you add a frame with timestamp t,
     //            you have already added either odometry or GPS/INS data
     //            with a timestamp greater than t, depending on the
-    //            pose source you are calibrating against.
+    //            pose source you are calibrating against. 解释pose source
     //
     // Add odometry and image data here.
     // camRigOdoCalib.addOdometry(x, y, yaw, timestamp);

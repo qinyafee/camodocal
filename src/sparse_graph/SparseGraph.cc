@@ -427,6 +427,19 @@ FrameSet::gpsInsMeasurement(void) const
     return m_gpsInsMeasurement;
 }
 
+//新增
+PosePtr& 
+FrameSet::referencePose(void)
+{
+    return m_referencePose;
+}
+
+PoseConstPtr 
+FrameSet::referencePose(void) const
+{
+    return m_referencePose;
+}
+
 SparseGraph::SparseGraph()
 {
 

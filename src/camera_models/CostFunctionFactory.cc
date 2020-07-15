@@ -304,7 +304,8 @@ public:
     // variables: 3D point
     template <typename T>
     bool operator()(const T* const point, T* residuals) const
-    {
+    {   
+        //q.coeffs() ,a vector expression of the coefficients (x,y,z,w)
         T q_cam_odo[4] = {T(m_cam_odo_q.coeffs()(0)), T(m_cam_odo_q.coeffs()(1)), T(m_cam_odo_q.coeffs()(2)), T(m_cam_odo_q.coeffs()(3))};
         T t_cam_odo[3] = {T(m_cam_odo_t(0)), T(m_cam_odo_t(1)), T(m_cam_odo_t(2))};
         T p_odo[3] = {T(m_odo_pos(0)), T(m_odo_pos(1)), T(m_odo_pos(2))};

@@ -98,7 +98,7 @@ private:
     {
         uint64_t timestamp = 0;
         std::vector<FramePtr> frames;
-    } FrameSet;
+    } FrameSet; //有一个同名class
 
     // inputs
     std::vector<CameraPtr> m_cameras;

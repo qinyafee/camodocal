@@ -12,6 +12,7 @@ camodocal_link_libraries(camodocal_sparse_graph
   ${Boost_FILESYSTEM_LIBRARY}
   ${Boost_SYSTEM_LIBRARY}
   ${OpenCV_LIBS}
+  camodocal_camera_systems
 )
 
 camodocal_install(camodocal_sparse_graph)

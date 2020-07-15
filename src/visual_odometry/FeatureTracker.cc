@@ -35,7 +35,7 @@
 #include <opencv2/xfeatures2d.hpp>
 #include <opencv2/core.hpp>
 #include <opencv2/imgproc.hpp>
-
+#include <opencv2/opencv.hpp>
 #else // HAVE_OPENCV3
 
     //////////////////
@@ -212,7 +212,7 @@ FeatureTracker::preprocessImage(cv::Mat& image, const cv::Mat& mask) const
 {
     if (!image.empty())
     {
-        equalizeHist(image, image, mask);
+        equalizeHist(image, image, mask); //均衡灰度图像的直方图。
     }
 }
 
@@ -288,9 +288,9 @@ FeatureTracker::matchPointFeaturesWithBestMatchTest(const cv::Mat& dtor1,
 
     for (size_t i = 0; i < rawMatches.size(); ++i)
     {
-        std::vector<cv::DMatch> match;
+        std::vector<cv::DMatch> match; 
         match.push_back(rawMatches.at(i));
-        matches.push_back(match);
+        matches.push_back(match);//将一维数组n转化成二维数组n*1
     }
 
     if (m_verbose)
@@ -487,7 +487,8 @@ TemporalFeatureTracker::TemporalFeatureTracker(const CameraConstPtr& camera,
  : FeatureTracker(detectorType, descriptorType, matchTestType, preprocess)
  , k_camera(camera)
  , m_init(false)
- , m_BA(camera, 20, 6, SlidingWindowBA::VO, globalCameraPose)
+//  , m_BA(camera, 20, 6, SlidingWindowBA::VO, globalCameraPose)
+ , m_BA(camera, 2, 1, SlidingWindowBA::VO, globalCameraPose)
  , k_maxDelta(80.0f)
  , k_minFeatureCorrespondences(15)
  , k_nominalFocalLength(300.0)
@@ -527,7 +528,7 @@ TemporalFeatureTracker::addFrame(FramePtr& frame, const cv::Mat& mask)
 
     if (m_BA.empty())
     {
-        m_frames.clear();
+        m_frames.clear(); //???
         m_poses.clear();
     }
 
@@ -549,7 +550,7 @@ TemporalFeatureTracker::addFrame(FramePtr& frame, const cv::Mat& mask)
         p->keypoint() = m_kpts.at(i);
         p->index() = i;
 
-        m_pointFeatures.push_back(p);
+        m_pointFeatures.push_back(p); //current
     }
 
     if (m_framePrev)
@@ -684,7 +685,7 @@ TemporalFeatureTracker::addFrame(FramePtr& frame, const cv::Mat& mask)
 
     if (!m_image.empty())
     {
-        m_image.copyTo(frame->image());
+        m_image.copyTo(frame->image()); //上面好像没有改变m_image，是不是多余
     }
 
     frame->features2D() = m_pointFeatures;
@@ -739,7 +740,7 @@ TemporalFeatureTracker::addFrame(FramePtr& frame, const cv::Mat& mask)
         }
     }
 
-    cv::cvtColor(m_image, m_sketch, CV_GRAY2BGR);
+    cv::cvtColor(m_image, m_sketch, CV_GRAY2BGR); //色彩还能回来？
     cv::drawKeypoints(m_sketch, m_kpts, m_sketch, cv::Scalar(0, 0, 255));
 
     visualizeTracks();
@@ -925,6 +926,16 @@ TemporalFeatureTracker::visualizeTracks(void)
                      green, 2, CV_AA, drawShiftBits);
         }
     }
+    // std::vector<cv::KeyPoint> keypoints, keypoints2;
+    // std::vector<std::vector<cv::DMatch> > matches;
+    // cv::Mat outimg;
+	// // drawing
+	// drawMatches(imgRGB2, keypoints2, imgRGB1, keypoints,matches,outimg,
+	// 		 cv::Scalar(0,255,0), cv::Scalar(0,0,255),
+	// 		std::vector<std::vector<char> >(), cv::DrawMatchesFlags::DRAW_RICH_KEYPOINTS );
+	cv::namedWindow("Matches");
+	cv::imshow("Matches", m_sketch);
+	cv::waitKey(5);
 }
 
 }

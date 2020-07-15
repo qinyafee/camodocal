@@ -117,7 +117,7 @@ public:
     bool addFrame(FramePtr& frame, const cv::Mat& mask);
     void clear(void);
 
-    void runBundleAdjustment(void);
+    void runBundleAdjustment(void);//没有用，应该是个full BA，要定住第一帧
 
     void getMatches(std::vector<cv::Point2f>& matchedPoints,
                     std::vector<cv::Point2f>& matchedPointsPrev) const;
@@ -144,8 +144,8 @@ protected:
     std::vector<Point2DFeaturePtr> m_pointFeatures;
 
     SlidingWindowBA m_BA;
-    std::vector<FramePtr> m_frames;
-    std::vector<Eigen::Matrix4d, Eigen::aligned_allocator<Eigen::Matrix4d> > m_poses;
+    std::vector<FramePtr> m_frames; //push_back(m_BA.currentFrame());BA优化后的
+    std::vector<Eigen::Matrix4d, Eigen::aligned_allocator<Eigen::Matrix4d> > m_poses;//BA优化后的
 
     cv::Mat m_matchingMask;
     const float k_maxDelta;

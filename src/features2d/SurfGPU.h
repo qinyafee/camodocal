@@ -81,7 +81,7 @@ class SurfGPU
 #endif // HAVE_OPENCV3
 #else // HAVE_CUDA
     
-#ifdef HAVE_OPENCV3
+#ifdef HAVE_OPENCV3  //我的配置
     //////////////////
     // OPENCV3
     //////////////////
@@ -141,5 +141,5 @@ private:
 };
 
 }
-
+//Surf: Speeded up robust features
 #endif
