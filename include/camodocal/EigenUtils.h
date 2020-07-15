@@ -15,6 +15,7 @@ T square(const T & m)
 }
 
 // Returns the 3D cross product skew symmetric matrix of a given 3D vector
+//和eigen x.cross(y)是一样的
 template<typename T>
 Eigen::Matrix<T, 3, 3> skew(const Eigen::Matrix<T, 3, 1>& vec)
 {
@@ -232,7 +233,7 @@ Eigen::Matrix<T, 4, 4> poseWithCartesianTranslation(const T* const q, const T* c
     return pose;
 }
 
-template<typename T>
+template<typename T> //不懂
 Eigen::Matrix<T, 4, 4> poseWithSphericalTranslation(const T* const q, const T* const p, const T scale = T(1.0))
 {
     Eigen::Matrix<T, 4, 4> pose = Eigen::Matrix<T, 4, 4>::Identity();
@@ -265,7 +266,7 @@ T sampsonError(const Eigen::Matrix<T, 3, 3>& E,
     Eigen::Matrix<T, 3, 1> Ex1 = E * p1;
     Eigen::Matrix<T, 3, 1> Etx2 = E.transpose() * p2;
 
-    T x2tEx1 = p2.dot(Ex1);
+    T x2tEx1 = p2.dot(Ex1); //确实是x2tEx1
 
     // compute Sampson error
     T err = square(x2tEx1) / (square(Ex1(0,0)) + square(Ex1(1,0)) + square(Etx2(0,0)) + square(Etx2(1,0)));

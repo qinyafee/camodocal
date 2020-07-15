@@ -218,11 +218,11 @@ CamOdoThread::threadFunction(void)
             timeout = boost::get_system_time() + boost::posix_time::milliseconds(10);
         }
 
-        if (m_stop)
+        if (m_stop) //vo 跟踪停止
         {
             std::vector<Eigen::Matrix4d, Eigen::aligned_allocator<Eigen::Matrix4d> > voPoses = tracker.getPoses();
 
-            if (odometryPoses.size() >= k_minVOSegmentSize)
+            if (odometryPoses.size() >= k_minVOSegmentSize) //存储此段 vo 位姿
             {
                 addCamOdoCalibData(voPoses, odometryPoses, tracker.getFrames());
             }
@@ -339,7 +339,7 @@ CamOdoThread::threadFunction(void)
                 if (framePrev.get() != 0 &&
                     (pos - framePrev->systemPose()->position()).norm() < k_minKeyframeDistance)
                 {
-                    m_image->notifyProcessingDone();
+                    m_image->notifyProcessingDone(); //继续处理吗？
                     continue;
                 }
 
@@ -494,7 +494,7 @@ CamOdoThread::threadFunction(void)
 
     m_running = false;
 
-    m_signalFinished();
+    m_signalFinished(); //
 }
 
 void

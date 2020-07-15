@@ -649,7 +649,7 @@ CameraSystem::leftCameraIdx(int idx) const
         return -1;
     }
 
-    return (idx + 1) % m_cameraCount;
+    return (idx + 1) % m_cameraCount; //得到rightcam
 }
 
 int
@@ -660,12 +660,12 @@ CameraSystem::rightCameraIdx(int idx) const
         return -1;
     }
 
-    return idx;
+    return idx;//为啥得到自己的id？
 }
 
 Eigen::Matrix4d
 CameraSystem::relativeTransformBetweenCameraPair(int pairIdx) const
-{
+{//方向不理解
     return m_globalPoses.at(rightCameraIdx(pairIdx)).inverse() * m_globalPoses.at(leftCameraIdx(pairIdx));
 }
 

@@ -1,5 +1,5 @@
-if(CAMODOCAL_CAMERA_MODELS_FOUND AND CAMODOCAL_FEATURES2D_FOUND AND HAVE_OPENCV_XFEATURES2D_NONFREE)
-
+# if(CAMODOCAL_CAMERA_MODELS_FOUND AND CAMODOCAL_FEATURES2D_FOUND AND HAVE_OPENCV_XFEATURES2D_NONFREE)
+if(CAMODOCAL_CAMERA_MODELS_FOUND AND CAMODOCAL_FEATURES2D_FOUND)
 include_directories(
   ${CERES_INCLUDE_DIRECTORIES}
   ../brisk/thirdparty/agast/include
@@ -47,3 +47,39 @@ endif(VCHARGE_VIZ)
 camodocal_install(camodocal_visual_odometry)
 
 endif()
+
+find_package(Pangolin REQUIRED)
+
+include_directories(
+${Pangolin_INCLUDE_DIRS}
+)
+
+camodocal_executable(vo 
+  vo.cc
+  DLib/FileFunctions.cpp
+)
+
+camodocal_link_libraries(vo
+  ${CAMODOCAL_PLATFORM_UNIX_LIBRARIES}
+  ${Boost_THREAD_LIBRARY}
+  ${OpenCV_LIBS}
+  camodocal_visual_odometry
+  camodocal_camera_models
+  camodocal_features2d
+  camodocal_fivepoint
+  camodocal_gpl
+  camodocal_pose_estimation
+  camodocal_sparse_graph
+  ${CERES_LIBRARIES}
+  ${Boost_LIBRARIES}
+) 
+
+camodocal_executable(SlidingWindowBA_simu
+  SlidingWindowBA_simulate.cc
+)
+
+camodocal_link_libraries(SlidingWindowBA_simu
+  ${CAMODOCAL_PLATFORM_UNIX_LIBRARIES}    
+  camodocal_visual_odometry
+  ${Pangolin_LIBRARIES}
+) 

@@ -11,3 +11,5 @@ camodocal_link_libraries(camodocal_fivepoint
 
 camodocal_install(camodocal_fivepoint)
 endif(OpenCV_FOUND)
+
+

@@ -59,14 +59,14 @@ public:
     const cv::Mat& image(void) const;
 
 private:
-    PosePtr m_cameraPose;
+    PosePtr m_cameraPose; //可能是某一时刻camera相对起始点的位移
     int m_cameraId;
 
-    OdometryPtr m_systemPose;
+    OdometryPtr m_systemPose; //后轴中心
     OdometryPtr m_odometryMeasurement;
     PosePtr m_gpsInsMeasurement;
 
-    std::vector<Point2DFeaturePtr> m_features2D;
+    std::vector<Point2DFeaturePtr> m_features2D; //此类不负责feature detection
 
     cv::Mat m_image;
 };
@@ -167,9 +167,9 @@ public:
 private:
     Eigen::Vector3d m_point;
     Eigen::Matrix3d m_pointCovariance;
-    int m_attributes;
+    int m_attributes; // 没用
     double m_weight;
-    std::vector<Point2DFeatureWPtr> m_features2D;
+    std::vector<Point2DFeatureWPtr> m_features2D; //对应多个2d
 };
 
 class FrameSet
@@ -191,13 +191,17 @@ public:
 
     PosePtr& gpsInsMeasurement(void);
     PoseConstPtr gpsInsMeasurement(void) const;
-
+    //新增
+    PosePtr& referencePose(void);
+    PoseConstPtr referencePose(void) const;
 private:
-    std::vector<FramePtr> m_frames;
+    std::vector<FramePtr> m_frames; // 4帧
 
     OdometryPtr m_systemPose;
     OdometryPtr m_odometryMeasurement;
     PosePtr m_gpsInsMeasurement;
+    //新增
+    PosePtr m_referencePose; //相机参考帧，后轴中心的位姿
 };
 
 typedef boost::shared_ptr<FrameSet> FrameSetPtr;

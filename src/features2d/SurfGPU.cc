@@ -27,7 +27,7 @@ SurfGPU::SurfGPU(double hessianThreshold, int nOctaves,
     
 #endif // HAVE_OPENCV3
 #else  // HAVE_CUDA
-#ifdef HAVE_OPENCV3
+#ifdef HAVE_OPENCV3  //我的配置
     
     // opencv3
     m_matcher(cv::DescriptorMatcher::create("BruteForce")),
@@ -277,13 +277,13 @@ SurfGPU::match(const cv::Mat& image1, std::vector<cv::KeyPoint>& keypoints1,
         dtors1 = dtorsGPU[0];
         dtors2 = dtorsGPU[1];
 #endif
-        std::vector<std::vector<cv::DMatch> > candidateFwdMatches;
+        std::vector<std::vector<cv::DMatch> > candidateFwdMatches; // n*2
         m_matcher->knnMatch(dtorsGPU[0], dtorsGPU[1], candidateFwdMatches, 2);
 
         std::vector<std::vector<cv::DMatch> > candidateRevMatches;
         m_matcher->knnMatch(dtorsGPU[1], dtorsGPU[0], candidateRevMatches, 2);
 
-        std::vector<std::vector<cv::DMatch> > fwdMatches(candidateFwdMatches.size());
+        std::vector<std::vector<cv::DMatch> > fwdMatches(candidateFwdMatches.size()); 
         for (size_t i = 0; i < candidateFwdMatches.size(); ++i)
         {
             std::vector<cv::DMatch>& match = candidateFwdMatches.at(i);
@@ -297,7 +297,7 @@ SurfGPU::match(const cv::Mat& image1, std::vector<cv::KeyPoint>& keypoints1,
 
             if (distanceRatio < maxDistanceRatio)
             {
-                fwdMatches.at(i).push_back(match.at(0));
+                fwdMatches.at(i).push_back(match.at(0));//n*1?
             }
         }
 
@@ -330,12 +330,12 @@ SurfGPU::match(const cv::Mat& image1, std::vector<cv::KeyPoint>& keypoints1,
 
             cv::DMatch& fwdMatch = fwdMatches.at(i).at(0);
 
-            if (revMatches.at(fwdMatch.trainIdx).empty())
+            if (revMatches.at(fwdMatch.trainIdx).empty()) //fwd->train = rev->query
             {
                 continue;
             }
 
-            cv::DMatch& revMatch = revMatches.at(fwdMatch.trainIdx).at(0);
+            cv::DMatch& revMatch = revMatches.at(fwdMatch.trainIdx).at(0); //存在
 
             if (fwdMatch.queryIdx == revMatch.trainIdx &&
                 fwdMatch.trainIdx == revMatch.queryIdx)

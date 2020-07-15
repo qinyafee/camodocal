@@ -1,5 +1,6 @@
 
 if(CAMODOCAL_CALIB_FOUND AND OpenCV_FOUND AND HAVE_OPENCV_XFEATURES2D_NONFREE)
+# if(CAMODOCAL_CALIB_FOUND AND OpenCV_FOUND )
 
 camodocal_executable(intrinsic_calib
   intrinsic_calib.cc
@@ -42,6 +43,7 @@ camodocal_link_libraries(extrinsic_calib
 )
 
 endif(CAMODOCAL_CALIB_FOUND AND OpenCV_FOUND AND HAVE_OPENCV_XFEATURES2D_NONFREE)
+# endif(CAMODOCAL_CALIB_FOUND AND OpenCV_FOUND)
 
 if(OpenCV_FOUND)
 include_directories(
